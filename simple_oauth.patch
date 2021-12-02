@@ -1,0 +1,42 @@
+diff --git a/src/Repositories/RefreshTokenRepository.php b/src/Repositories/RefreshTokenRepository.php
+index 1c0fe22..9e6588a 100644
+--- a/src/Repositories/RefreshTokenRepository.php
++++ b/src/Repositories/RefreshTokenRepository.php
+@@ -37,7 +37,9 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface {
+    * {@inheritdoc}
+    */
+   public function getNewRefreshToken() {
+-    return $this->getNew();
++    if ($_REQUEST['grant_type'] === 'password') {
++      return $this->getNew();
++    }
+   }
+ 
+   /**
+@@ -51,7 +53,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface {
+    * {@inheritdoc}
+    */
+   public function revokeRefreshToken($token_id) {
+-    $this->revoke($token_id);
++    // $this->revoke($token_id);
+   }
+ 
+   /**
+diff --git a/src/Repositories/UserRepository.php b/src/Repositories/UserRepository.php
+index f3ebddf..50bc6e4 100644
+--- a/src/Repositories/UserRepository.php
++++ b/src/Repositories/UserRepository.php
+@@ -29,6 +29,13 @@ class UserRepository implements UserRepositoryInterface {
+    * {@inheritdoc}
+    */
+   public function getUserEntityByUserCredentials($username, $password, $grantType, ClientEntityInterface $clientEntity) {
++    if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
++      $user = user_load_by_mail($username);
++      if ($user) {
++        $username = $user->getAccountName();
++      }
++    }
++    
+     // TODO: Use authenticateWithFloodProtection when #2825084 lands.
+     if ($uid = $this->userAuth->authenticate($username, $password)) {
+       $user = new UserEntity();
