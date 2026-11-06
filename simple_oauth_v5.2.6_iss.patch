@@ -1,0 +1,16 @@
+diff --git a/web/modules/custom/simple_oauth/src/Entities/AccessTokenEntity.php b/web/modules/custom/simple_oauth/src/Entities/AccessTokenEntity.php
+index 19eef6086..b42c00f04 100644
+--- a/web/modules/custom/simple_oauth/src/Entities/AccessTokenEntity.php
++++ b/web/modules/custom/simple_oauth/src/Entities/AccessTokenEntity.php
+@@ -44,6 +44,11 @@ public function convertToJWT() {
+       ->relatedTo($this->getUserIdentifier())
+       ->withClaim('scope', $this->getScopes());
+ 
++    if (isset($private_claims['iss'])) {
++      $builder->issuedBy($private_claims['iss']);
++      unset($private_claims['iss']);
++    }
++
+     foreach ($private_claims as $claim_name => $value) {
+       $builder->withClaim($claim_name, $value);
+     }
